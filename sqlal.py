@@ -1,14 +1,22 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, validators, PasswordField, SubmitField, ValidationError
 from flask_bootstrap import Bootstrap
+from flask_login import LoginManager, current_user, login_user, login_required
 
 app = Flask(__name__)
 Bootstrap(app)
 app.secret_key = 'abul'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/thaki/ABUL/Hall_Management/test.py'
 db = SQLAlchemy(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+
+
+
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -23,6 +31,27 @@ class User(db.Model):
 
     def __repr__(self):
         return "<User(%s, %s, %s)>" % (self.username, self.email, self.password)
+
+    def is_active(self):
+        """True, as all users are active."""
+        return True
+
+    def get_id(self):
+        """Return the email address to satisfy Flask-Login's requirements."""
+        return str(self.id)
+
+    def is_authenticated(self):
+        """Return True if the user is authenticated."""
+        return self.authenticated
+
+    def is_anonymous(self):
+        """False, as anonymous users aren't supported."""
+        return False
+
+
+@login_manager.user_loader
+def user_loader(user_id):
+    return User.query.get(int(user_id))
 
 
 
@@ -57,6 +86,7 @@ def insert_user():
 def user_pass_matched():
     user = User.query.filter_by(username=request.form['username']).first()
     if user.password == request.form['password']:
+        login_user(user, remember=True)
         return True
     return False
 
@@ -67,14 +97,13 @@ def index():
 
 @app.route('/login', methods=['GET','POST'])
 def login():
-    errors = None
     form = LoginForm()
     if request.method=='POST' and form.validate_on_submit():
         if user_pass_matched():
             return 'ok'
         else:
-            errors = 'Password Error'
-    return render_template('login.html', form=form, errors = errors)
+            flash('Password Error')
+    return render_template('login.html', form=form)
 
 @app.route('/register', methods=['GET','POST'])
 def register():
@@ -85,3 +114,7 @@ def register():
     
     return render_template('register.html', form=form)
     
+@app.route('/ab')
+@login_required
+def ab():
+    return 'abul'

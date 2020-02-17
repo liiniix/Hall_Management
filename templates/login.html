@@ -8,9 +8,15 @@
 
 {% block content %}
 <div class="container">
-    {{ wtf.quick_form(form) }}
-    {% if errors %}
-        <p class="alert">{{errors}}</p>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alret alert-danger" role="alert">{{ message }}</div>
+        {% endfor %}
     {% endif %}
+    {% endwith %}
+
+
+    {{ wtf.quick_form(form) }}
 </div>
 {% endblock %}
