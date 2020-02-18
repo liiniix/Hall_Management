@@ -160,3 +160,4 @@ def profile(reg):
         return render_template('profile.html', user = user)
     if user==current_user:
         return render_template('profile.html', user = user)
+##gitignore
