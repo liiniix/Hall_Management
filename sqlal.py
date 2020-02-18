@@ -91,7 +91,7 @@ def user_pass_matched():
 def index():
     if current_user.is_authenticated:
         flash('already logged in')
-        return redirect('/ab')
+        return redirect('/verified')
     return render_template('index.html')
 
 
@@ -103,12 +103,12 @@ def index():
 def login():
     if current_user.is_authenticated:
         flash('you are logged in already')
-        return redirect('/ab')
+        return redirect('/verified')
     form = LoginForm()
     if request.method=='POST' and form.validate_on_submit():
         if user_pass_matched():
             flash('Login success')
-            return redirect('/ab')
+            return redirect('/verified')
         else:
             flash('Password Error')
     return render_template('login.html', form=form)
@@ -119,7 +119,7 @@ def login():
 def register():
     if current_user.is_authenticated:
         flash('You are logged in already')
-        return redirect('/ab')
+        return redirect('/verified')
     form = RegisterForm()
     if request.method=='POST' and form.validate_on_submit():
         insert_user()
@@ -137,7 +137,7 @@ def logout():
     flash('logout success')
     return redirect('/index')
 
-@app.route('/ab')
+@app.route('/verified')
 @login_required
-def ab():
+def verified():
     return render_template('/verified.html')
