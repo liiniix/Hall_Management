@@ -1,9 +1,9 @@
-from flask import Flask, render_template, request, flash
+from flask import Flask, render_template, redirect, request, flash, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, validators, PasswordField, SubmitField, ValidationError
 from flask_bootstrap import Bootstrap
-from flask_login import LoginManager, current_user, login_user, login_required
+from flask_login import LoginManager, current_user, login_user, login_required, logout_user
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -33,19 +33,15 @@ class User(db.Model):
         return "<User(%s, %s, %s)>" % (self.username, self.email, self.password)
 
     def is_active(self):
-        """True, as all users are active."""
         return True
 
     def get_id(self):
-        """Return the email address to satisfy Flask-Login's requirements."""
         return str(self.id)
 
     def is_authenticated(self):
-        """Return True if the user is authenticated."""
-        return self.authenticated
+        return True
 
     def is_anonymous(self):
-        """False, as anonymous users aren't supported."""
         return False
 
 
@@ -93,28 +89,55 @@ def user_pass_matched():
 @app.route('/')
 @app.route('/index')
 def index():
+    if current_user.is_authenticated:
+        flash('already logged in')
+        return redirect('/ab')
     return render_template('index.html')
+
+
+
+
+
 
 @app.route('/login', methods=['GET','POST'])
 def login():
+    if current_user.is_authenticated:
+        flash('you are logged in already')
+        return redirect('/ab')
     form = LoginForm()
     if request.method=='POST' and form.validate_on_submit():
         if user_pass_matched():
-            return 'ok'
+            flash('Login success')
+            return redirect('/ab')
         else:
             flash('Password Error')
     return render_template('login.html', form=form)
 
+
+
 @app.route('/register', methods=['GET','POST'])
 def register():
+    if current_user.is_authenticated:
+        flash('You are logged in already')
+        return redirect('/ab')
     form = RegisterForm()
     if request.method=='POST' and form.validate_on_submit():
         insert_user()
-        return 'ok'
+        flash('register success. Now log in')
+        return redirect('/login')
     
     return render_template('register.html', form=form)
     
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('logout success')
+    return redirect('/index')
+
 @app.route('/ab')
 @login_required
 def ab():
-    return 'abul'
+    return render_template('/verified.html')

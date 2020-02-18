@@ -1,3 +1,4 @@
+{% import "bootstrap/wtf.html" as wtf %}
 {% extends "bootstrap/base.html" %}
 {% block title %}This is an example page{% endblock %}
 
@@ -14,7 +15,10 @@
         {% endfor %}
     {% endif %}
     {% endwith %}
-    <a class="btn btn-primary" href="{{ url_for('login') }}" role="button">Login</a>
-    <a class="btn btn-primary" href="{{ url_for('register') }}" role="button">Register</a>
+
+
+    <div class="jumbotron">
+        You can't enter this page unless you are verified, logged in user.
+    </div>
 </div>
 {% endblock %}
