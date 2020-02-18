@@ -1,14 +1,16 @@
-from flask import Flask, render_template, redirect, request, flash, url_for
+from flask import Flask, render_template, redirect, request, flash, url_for, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, validators, PasswordField, SubmitField, ValidationError
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager, current_user, login_user, login_required, logout_user
 
+
+
 app = Flask(__name__)
 Bootstrap(app)
 app.secret_key = 'abul'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/thaki/ABUL/Hall_Management/test.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -53,7 +55,7 @@ def user_loader(user_id):
 
 
 class LoginForm(FlaskForm):
-    reg = StringField('REgistration No', validators=[validators.DataRequired()])
+    reg = StringField('Registration', validators=[validators.DataRequired()])
     password = PasswordField('Password', validators=[validators.DataRequired(),validators.Length(min=8)])
     submit = SubmitField('Submit')
 
@@ -63,7 +65,7 @@ class LoginForm(FlaskForm):
             raise ValidationError('Please Register')
 
 class RegisterForm(FlaskForm):
-    reg = StringField('REgistration Number', [validators.DataRequired()])
+    reg = StringField('Registration Number', [validators.DataRequired()])
     username = StringField('Username', validators=[validators.DataRequired(),validators.Length(min=5,max=10)])
     email = StringField('Email', validators=[validators.DataRequired(),validators.Length(min=5,max=50),validators.Email()])
     session = StringField('Session', validators=[validators.DataRequired()])
@@ -78,6 +80,7 @@ class RegisterForm(FlaskForm):
         user = User.query.filter_by(reg=reg.data).first()
         if user is not None:
             raise ValidationError('Registered Already')
+
 def insert_user():
     a = User(reg = request.form['reg'],username = request.form['username'], email = request.form['email'], password = request.form['password'],  session = request.form['session'], dept = request.form['dept'], roll = request.form['roll'], address = request.form['address'], serial = request.form['serial'])
     db.session.add(a)
@@ -119,6 +122,7 @@ def login():
 
 
 
+
 @app.route('/register', methods=['GET','POST'])
 def register():
     if current_user.is_authenticated:
@@ -145,3 +149,14 @@ def logout():
 @login_required
 def verified():
     return render_template('/verified.html')
+
+@app.route('/profile/<reg>')
+@login_required
+def profile(reg):
+    user = User.query.get(reg)
+    if user is None:
+        abort(404)
+    if current_user.reg == 'admin':
+        return render_template('profile.html', user = user)
+    if user==current_user:
+        return render_template('profile.html', user = user)
