@@ -1,4 +1,4 @@
 - Firstly create virtualenv using python-3.6.9
 - Activate virtualenv
-- pip install - requirements.txt
+- pip install -r requirements.txt
 - run by command ./run
