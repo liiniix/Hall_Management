@@ -4,6 +4,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, validators, PasswordField, SubmitField, ValidationError
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager, current_user, login_user, login_required, logout_user
+from flask_table import Table, Col
 
 
 
@@ -51,6 +52,10 @@ class User(db.Model):
 @login_manager.user_loader
 def user_loader(user_id):
     return User.query.get(user_id)
+
+
+class Information( Table ):
+    
 
 
 
@@ -161,3 +166,9 @@ def profile(reg):
     if user==current_user:
         return render_template('profile.html', user = user)
 ##gitignore
+
+@app.route('/showall')
+@login_required
+def showall():
+    data = User.query.all()
+    return render_template('showall.html',data = data)
