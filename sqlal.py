@@ -54,7 +54,7 @@ def user_loader(user_id):
     return User.query.get(user_id)
 
 
-class Information( Table ):
+#class Information( Table ):
     
 
 
