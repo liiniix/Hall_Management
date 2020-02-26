@@ -55,8 +55,15 @@ def user_loader(user_id):
 
 
 class Information( Table ):
-    
-
+    reg = Col('Registration')
+    username = Col('Username')
+    email = Col('Email')
+    session = Col('Session')
+    dept = Col('Department')
+    roll = Col('Roll')
+    address = Col('Address')
+    serial = Col('Serial')
+    password = Col('Password',show=False)
 
 
 class LoginForm(FlaskForm):
@@ -171,4 +178,6 @@ def profile(reg):
 @login_required
 def showall():
     data = User.query.all()
-    return render_template('showall.html',data = data)
+    table = Information(data)
+    table.border = True
+    return render_template('showall.html', table = table)
