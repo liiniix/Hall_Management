@@ -1,3 +1,5 @@
-env/
+#Files to ignore
 venv/
-vmenv/
+
+*.pyc
+__pycache__/
