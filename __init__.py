@@ -161,6 +161,8 @@ def logout():
     #return redirect('/app/index')
     return redirect('/index')
 
+
+
 @app.route('/verified')
 @login_required
 def verified():
@@ -168,9 +170,13 @@ def verified():
     if current_user.reg == 'admin':
         data = User.query.all()
         table = Information(data)
+        table.border = True
+        table.classes = ['table', 'table-striped']
         return render_template('admin.html', table = table)
     else:
         return render_template('verified.html')
+
+
 
 @app.route('/profile/<reg>')
 @login_required
