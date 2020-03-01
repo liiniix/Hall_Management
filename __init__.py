@@ -54,7 +54,17 @@ def user_loader(user_id):
     return User.query.get(user_id)
 
 
-#class Information( Table ):
+
+class Information( Table ):
+    reg = Col('Registration')
+    username = Col('Username')
+    email = Col('Email')
+    session = Col('Session')
+    dept = Col('Department')
+    roll = Col('Roll')
+    address = Col('Address')
+    serial = Col('Serial')
+    password = Col('Password',show=False)
     
 
 
@@ -103,24 +113,22 @@ def reg_pass_matched():
 def index():
     if current_user.is_authenticated:
         flash('already logged in')
-        return redirect('/app/verified')
+        #return redirect('/app/verified')
+        return redirect('/verified')
     return render_template('index.html')
-
-
-
-
 
 
 @app.route('/login', methods=['GET','POST'])
 def login():
     if current_user.is_authenticated:
         flash('you are logged in already')
-        return redirect('/app/verified')
+        #return redirect('/app/verified')
     form = LoginForm()
     if request.method=='POST' and form.validate_on_submit():
         if reg_pass_matched():
             flash('Login success')
-            return redirect('/app/verified')
+            #return redirect('/app/verified')
+            return redirect('/verified')
         else:
             flash('Password Error')
     return render_template('login.html', form=form)
@@ -132,12 +140,14 @@ def login():
 def register():
     if current_user.is_authenticated:
         flash('You are logged in already')
-        return redirect('/app/verified')
+        #return redirect('/app/verified')
+        return redirect('/verified')
     form = RegisterForm()
     if request.method=='POST' and form.validate_on_submit():
         insert_user()
         flash('register success. Now log in')
-        return redirect('/app/login')
+        #return redirect('/app/login')
+        return redirect('/login')
     
     return render_template('register.html', form=form)
     
@@ -148,12 +158,19 @@ def register():
 def logout():
     logout_user()
     flash('logout success')
-    return redirect('/app/index')
+    #return redirect('/app/index')
+    return redirect('/index')
 
 @app.route('/verified')
 @login_required
 def verified():
-    return render_template('verified.html')
+    #if current_user.is_authenticated:
+    if current_user.reg == 'admin':
+        data = User.query.all()
+        table = Information(data)
+        return render_template('admin.html', table = table)
+    else:
+        return render_template('verified.html')
 
 @app.route('/profile/<reg>')
 @login_required
@@ -167,11 +184,13 @@ def profile(reg):
         return render_template('profile.html', user = user)
 ##gitignore
 
+"""
 @app.route('/showall')
 @login_required
 def showall():
     data = User.query.all()
     return render_template('showall.html',data = data)
+"""
 
 if __name__ == '__main__':
     app.run()
