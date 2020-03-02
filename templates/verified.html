@@ -1,9 +1,10 @@
 {% import "bootstrap/wtf.html" as wtf %}
-{% extends "bootstrap/base.html" %}
+{% extends "my_base.html" %}
 {% block title %}This is an example page{% endblock %}
 
 {% block navbar %}
 <!--<div class="navbar navbar-fixed-top"></div>-->
+{{ super() }}
 {% endblock %}
 
 {% block content %}
@@ -16,9 +17,7 @@
     {% endif %}
     {% endwith %}
 
+    
 
-    <div class="jumbotron">
-        <h1>You can't enter this page unless you are verified, logged in user.</h1>
-    </div>
 </div>
 {% endblock %}

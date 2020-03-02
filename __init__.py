@@ -4,15 +4,15 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, validators, PasswordField, SubmitField, ValidationError
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager, current_user, login_user, login_required, logout_user
-from flask_table import Table, Col
-
-
+from flask_table import Table, Col, BoolCol
+from flask_migrate import Migrate
 
 app = Flask(__name__)
 Bootstrap(app)
 app.secret_key = 'abul'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -31,6 +31,7 @@ class User(db.Model):
     address = db.Column(db.String(50))
     serial = db.Column(db.Integer)
     password = db.Column(db.String(50))
+    residential = db.Column(db.Boolean)
 
 
     def __repr__(self):
@@ -65,6 +66,7 @@ class Information( Table ):
     address = Col('Address')
     serial = Col('Serial')
     password = Col('Password',show=False)
+    residential = BoolCol('Residential')
     
 
 
@@ -89,6 +91,7 @@ class RegisterForm(FlaskForm):
     address = StringField('Address', validators=[validators.DataRequired()])
     serial = IntegerField('Serial of Admission Test', validators=[validators.DataRequired()])
     password = PasswordField('Password', validators=[validators.DataRequired(),validators.Length(min=8)])
+    
     submit = SubmitField('Submit')
 
     def validate_reg(self, reg):
@@ -97,7 +100,17 @@ class RegisterForm(FlaskForm):
             raise ValidationError('Registered Already')
 
 def insert_user():
-    a = User(reg = request.form['reg'],username = request.form['username'], email = request.form['email'], password = request.form['password'],  session = request.form['session'], dept = request.form['dept'], roll = request.form['roll'], address = request.form['address'], serial = request.form['serial'])
+    a = User(reg = request.form['reg'], 
+            username = request.form['username'], 
+            email = request.form['email'], 
+            password = request.form['password'], 
+            session = request.form['session'], 
+            dept = request.form['dept'], 
+            roll = request.form['roll'], 
+            address = request.form['address'], 
+            serial = request.form['serial'],
+            residential = False
+    )
     db.session.add(a)
     db.session.commit()
 
@@ -134,8 +147,6 @@ def login():
     return render_template('login.html', form=form)
 
 
-
-
 @app.route('/register', methods=['GET','POST'])
 def register():
     if current_user.is_authenticated:
@@ -150,7 +161,6 @@ def register():
         return redirect('/login')
     
     return render_template('register.html', form=form)
-    
 
 
 @app.route('/logout')
@@ -168,11 +178,11 @@ def logout():
 def verified():
     #if current_user.is_authenticated:
     if current_user.reg == 'admin':
-        data = User.query.all()
-        table = Information(data)
-        table.border = True
-        table.classes = ['table', 'table-striped']
-        return render_template('admin.html', table = table)
+        data = User.query.filter(User.reg != 'admin')
+        #table = Information(data)
+        #table.border = True
+        #table.classes = ['table', 'table-striped']
+        return render_template('admin.html', data = data)
     else:
         return render_template('verified.html')
 
@@ -188,15 +198,7 @@ def profile(reg):
         return render_template('profile.html', user = user)
     if user==current_user:
         return render_template('profile.html', user = user)
-##gitignore
 
-"""
-@app.route('/showall')
-@login_required
-def showall():
-    data = User.query.all()
-    return render_template('showall.html',data = data)
-"""
 
 if __name__ == '__main__':
     app.run()
