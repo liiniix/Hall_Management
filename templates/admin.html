@@ -8,6 +8,7 @@
 {% block content %}
     <div class="container">
         <form action="" method="post">
+            <h2>Students' Information</h2>
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -19,10 +20,33 @@
                         <td>Roll</td>
                         <td>Address</td>
                         <td>Serial</td>
-                        \
+                        <td>Residential</td>
                     </tr>
                 </thead>
+                <tbody>
+                    {% for user in data %}
+                        <tr>
+                            <td>{{ user.reg }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.session }}</td>
+                            <td>{{ user.dept }}</td>
+                            <td>{{ user.roll }}</td>
+                            <td>{{ user.address }}</td>
+                            <td>{{ user.serial }}</td>
+                            <td>
+                                {% if user.residential is sameas true %}
+                                    <input type="hidden" name="{{ user.reg }}" value="off">
+                                    <input type="checkbox" id="{{ user.reg }}" name="{{ user.reg }}" value="on" checked>
+                                {% else %}
+                                    <input type="checkbox" id="{{ user.reg }}" name="{{ user.reg }}">
+                                {% endif %}
+                            </td>
+                        <tr>
+                    {% endfor %}
+                </tbody>
             </table>
+            <input type="submit">
         </form>
     </div>
 {% endblock %}

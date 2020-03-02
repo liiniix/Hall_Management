@@ -173,19 +173,27 @@ def logout():
 
 
 
-@app.route('/verified')
+@app.route('/verified', methods=['GET', 'POST'])
 @login_required
 def verified():
     #if current_user.is_authenticated:
     if current_user.reg == 'admin':
-        data = User.query.filter(User.reg != 'admin')
-        #table = Information(data)
-        #table.border = True
-        #table.classes = ['table', 'table-striped']
-        return render_template('admin.html', data = data)
-    else:
-        return render_template('verified.html')
+        if request.method == 'GET':
+            data = User.query.filter(User.reg != 'admin')
+            return render_template('admin.html', data = data)
+        else:
+            req = request.form.to_dict()
+            print(req)
+            for key, value in req.items():
+                user = User.query.get(key)
+                if value == 'on':
+                    user.residential = True
+                else:
+                    user.residential = False
+                db.session.commit()
 
+    
+    return render_template('verified.html')
 
 
 @app.route('/profile/<reg>')
