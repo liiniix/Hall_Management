@@ -6,6 +6,7 @@ from flask_bootstrap import Bootstrap
 from flask_login import LoginManager, current_user, login_user, login_required, logout_user
 from flask_table import Table, Col, BoolCol
 from flask_migrate import Migrate
+from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -16,9 +17,15 @@ migrate = Migrate(app, db)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+def increment_due():
+    residential_students = User.query.filter(User.residential == True)
+    for residential_student in residential_students:
+        residential_student.due += 500
+    db.session.commit()
 
-
-
+scheduler = BackgroundScheduler()
+job = scheduler.add_job(increment_due, 'interval', minutes=1)
+scheduler.start()
 
 
 class User(db.Model):
@@ -32,6 +39,7 @@ class User(db.Model):
     serial = db.Column(db.Integer)
     password = db.Column(db.String(50))
     residential = db.Column(db.Boolean)
+    due = db.Column(db.Integer)
 
 
     def __repr__(self):
@@ -53,21 +61,6 @@ class User(db.Model):
 @login_manager.user_loader
 def user_loader(user_id):
     return User.query.get(user_id)
-
-
-
-class Information( Table ):
-    reg = Col('Registration')
-    username = Col('Username')
-    email = Col('Email')
-    session = Col('Session')
-    dept = Col('Department')
-    roll = Col('Roll')
-    address = Col('Address')
-    serial = Col('Serial')
-    password = Col('Password',show=False)
-    residential = BoolCol('Residential')
-    
 
 
 
@@ -109,7 +102,8 @@ def insert_user():
             roll = request.form['roll'], 
             address = request.form['address'], 
             serial = request.form['serial'],
-            residential = False
+            residential = False,
+            due = 0
     )
     db.session.add(a)
     db.session.commit()
@@ -200,12 +194,15 @@ def verified():
 @login_required
 def profile(reg):
     user = User.query.get(reg)
+    print(user)
     if user is None:
         abort(404)
     if current_user.reg == 'admin':
         return render_template('profile.html', user = user)
     if user==current_user:
         return render_template('profile.html', user = user)
+
+
 
 
 if __name__ == '__main__':

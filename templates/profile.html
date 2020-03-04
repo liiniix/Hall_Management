@@ -22,6 +22,9 @@
         {{ user.reg }}
         {{ user.email }}
         {{ user.session }}
+        {% if user.residential is sameas true %}
+            {{ user.due }}
+        {% endif %}
     </div>
 </div>
 {% endblock %}
