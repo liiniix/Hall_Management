@@ -21,20 +21,25 @@ login_manager.init_app(app)
 
 
 
+class Students(db.Model):
+    reg = db.Column(db.String(15), primary_key=True)
+    name = db.Column(db.String(80))
+    dept = db.Column(db.String(30))
+    hall = db.Column(db.String(30))
+    roll = db.Column(db.String(5))
+    address = db.Column(db.String(50))
+    merit_score = db.Column(db.String(5))
+
+
+
+
 class User(db.Model):
     reg = db.Column(db.String(15), primary_key=True)
-    username = db.Column(db.String(80))
-    email = db.Column(db.String(120))
-    session = db.Column(db.String(10))
-    dept = db.Column(db.String(30))
-    roll = db.Column(db.Integer)
-    address = db.Column(db.String(50))
-    serial = db.Column(db.Integer)
     password = db.Column(db.String(50))
 
 
     def __repr__(self):
-        return "<User(%s, %s, %s)>" % (self.reg, self.email, self.password)
+        return "<User(%s, %s)>" % (self.reg, self.password)
 
     def is_active(self):
         return True
@@ -71,13 +76,6 @@ class LoginForm(FlaskForm):
 
 class RegisterForm(FlaskForm):
     reg = StringField('Registration Number', [validators.DataRequired()])
-    username = StringField('Username', validators=[validators.DataRequired(),validators.Length(min=5,max=10)])
-    email = StringField('Email', validators=[validators.DataRequired(),validators.Length(min=5,max=50),validators.Email()])
-    session = StringField('Session', validators=[validators.DataRequired()])
-    dept = StringField('Department', validators=[validators.DataRequired()])
-    roll = IntegerField('Class Roll', validators=[validators.DataRequired()])
-    address = StringField('Address', validators=[validators.DataRequired()])
-    serial = IntegerField('Serial of Admission Test', validators=[validators.DataRequired()])
     password = PasswordField('Password', validators=[validators.DataRequired(),validators.Length(min=8)])
     submit = SubmitField('Submit')
 
@@ -87,7 +85,7 @@ class RegisterForm(FlaskForm):
             raise ValidationError('Registered Already')
 
 def insert_user():
-    a = User(reg = request.form['reg'],username = request.form['username'], email = request.form['email'], password = request.form['password'],  session = request.form['session'], dept = request.form['dept'], roll = request.form['roll'], address = request.form['address'], serial = request.form['serial'])
+    a = User(reg = request.form['reg'],password = request.form['password'])
     db.session.add(a)
     db.session.commit()
 
@@ -103,7 +101,7 @@ def reg_pass_matched():
 def index():
     if current_user.is_authenticated:
         flash('already logged in')
-        return redirect('/app/verified')
+        return redirect('/verified')
     return render_template('index.html')
 
 
@@ -115,12 +113,12 @@ def index():
 def login():
     if current_user.is_authenticated:
         flash('you are logged in already')
-        return redirect('/app/verified')
+        return redirect('/verified')
     form = LoginForm()
     if request.method=='POST' and form.validate_on_submit():
         if reg_pass_matched():
             flash('Login success')
-            return redirect('/app/verified')
+            return redirect('/verified')
         else:
             flash('Password Error')
     return render_template('login.html', form=form)
@@ -132,12 +130,12 @@ def login():
 def register():
     if current_user.is_authenticated:
         flash('You are logged in already')
-        return redirect('/app/verified')
+        return redirect('/verified')
     form = RegisterForm()
     if request.method=='POST' and form.validate_on_submit():
         insert_user()
         flash('register success. Now log in')
-        return redirect('/app/login')
+        return redirect('/login')
     
     return render_template('register.html', form=form)
     
@@ -148,7 +146,7 @@ def register():
 def logout():
     logout_user()
     flash('logout success')
-    return redirect('/app/index')
+    return redirect('/index')
 
 @app.route('/verified')
 @login_required
