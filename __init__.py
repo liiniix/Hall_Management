@@ -80,9 +80,13 @@ class RegisterForm(FlaskForm):
     submit = SubmitField('Submit')
 
     def validate_reg(self, reg):
+        stu = Students.query.filter_by(reg=reg.data).first()
+        if stu is None:
+            raise ValidationError('Not in Student Database')
+
         user = User.query.filter_by(reg=reg.data).first()
         if user is not None:
-            raise ValidationError('Registered Already')
+            raise ValidationError('Already registered')
 
 def insert_user():
     a = User(reg = request.form['reg'],password = request.form['password'])
@@ -153,16 +157,7 @@ def logout():
 def verified():
     return render_template('verified.html')
 
-@app.route('/profile/<reg>')
-@login_required
-def profile(reg):
-    user = User.query.get(reg)
-    if user is None:
-        abort(404)
-    if current_user.reg == 'admin':
-        return render_template('profile.html', user = user)
-    if user==current_user:
-        return render_template('profile.html', user = user)
+
 ##gitignore
 
 @app.route('/showall')
@@ -170,6 +165,14 @@ def profile(reg):
 def showall():
     data = User.query.all()
     return render_template('showall.html',data = data)
+
+
+
+@app.route('/profile')
+@login_required
+def profile():
+    if current_user.get_id() != 'admin':
+        return render_template('profile.html')
 
 if __name__ == '__main__':
     app.run()
