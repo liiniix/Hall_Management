@@ -30,6 +30,15 @@ class Students(db.Model):
     address = db.Column(db.String(50))
     merit_score = db.Column(db.String(5))
 
+class Students_Table( Table ):
+    reg = Col('Registration')
+    name = Col('Name')
+    dept = Col('Department')
+    hall = Col('Hall')
+    roll = Col('Roll')
+    address = Col('Address')
+    merit_score = Col('Merit Score')
+
 
 
 
@@ -163,9 +172,13 @@ def verified():
 @app.route('/showall')
 @login_required
 def showall():
-    data = User.query.all()
-    return render_template('showall.html',data = data)
-
+    if current_user.get_id() == 'admin':
+        data = Students.query.all()
+        table_data = Students_Table(data, classes=['table', 'table-striped', 'table-hover', 'h4', 'success'])
+        table_data.border = True
+        return render_template('showall.html',table_data = table_data)
+    else:
+        return "404"
 
 
 @app.route('/profile')
