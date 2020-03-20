@@ -2,15 +2,18 @@ from __init__ import *
 
 db.create_all()
 
-a = Students(reg='a',name='1',dept='1',hall='1',roll='1',address='1',merit_score='1')
+a = Students(reg=u"2016914403",name='Abdullah Al Thaki',dept='Computer Science and Engineering',hall='Shahidullah',roll='12',address='Chittagang',merit_score='228')
 db.session.add(a)
-b = Students(reg='b',name='1',dept='1',hall='1',roll='1',address='1',merit_score='1')
+b = Students(reg=u"2016914404",name='Ishtiaque Zahid',dept='Computer Science and Engineering',hall='Amar Ekushey',roll='1',address='Dhaka',merit_score='40')
 db.session.add(b)
-c = Students(reg='c',name='1',dept='1',hall='1',roll='1',address='1',merit_score='1')
+c = Students(reg=u"2016914405",name='Abul Fajal',dept='Computer Science and Engineering',hall='Shahidullah',roll='3',address='Dhaka',merit_score='500')
 db.session.add(c)
-d = Students(reg='d',name='1',dept='1',hall='1',roll='1',address='1',merit_score='1')
+d = Students(reg=u"2016914406",name='Covid-19',dept='Computer Science and Engineering',hall='Shahidullah',roll='5',address='Dhaka',merit_score='300')
 db.session.add(d)
-e = Students(reg='e',name='1',dept='1',hall='1',roll='1',address='1',merit_score='1')
+e = Students(reg=u"2016914400",name='Jani Na',dept='Computer Science and Engineering',hall='Shahidullah',roll='100',address='Dhaka',merit_score='133')
+db.session.add(e)
+
+e = User(reg=u"admin",password='adminadm')
 db.session.add(e)
 
 

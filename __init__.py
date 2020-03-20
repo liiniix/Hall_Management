@@ -30,6 +30,9 @@ class Students(db.Model):
     address = db.Column(db.String(50))
     merit_score = db.Column(db.String(5))
 
+    def __lt__(self, other):
+         return self.reg < other.reg
+
 class Students_Table( Table ):
     reg = Col('Registration')
     name = Col('Name')
@@ -169,12 +172,16 @@ def verified():
 
 ##gitignore
 
-@app.route('/showall')
+@app.route('/showall', methods=['GET','POST'])
 @login_required
 def showall():
     if current_user.get_id() == 'admin':
         data = Students.query.all()
-        table_data = Students_Table(data, classes=['table', 'table-striped', 'table-hover', 'h4', 'success'])
+        if request.method=='POST':
+            if request.form['submit']=='Sort':
+                flash('Table sorted')
+                data.sort()
+        table_data = Students_Table(data, classes=['table', 'table-striped', 'table-hover', 'success'])
         table_data.border = True
         return render_template('showall.html',table_data = table_data)
     else:
@@ -186,6 +193,7 @@ def showall():
 def profile():
     if current_user.get_id() != 'admin':
         return render_template('profile.html')
+
 
 if __name__ == '__main__':
     app.run()
