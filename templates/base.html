@@ -2,8 +2,7 @@
 {% extends "bootstrap/base.html" %}
 {% block head %}
     {{ super() }}
-    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    -->{% if title %}
+    {% if title %}
         <title> {{ title }} </title>
     {% else %}
         <title> Welcome Hall Management!</title>
@@ -24,30 +23,30 @@
             </h4> 
             <ul class="nav nav-pills">
                 <li class="nav-item">
-                    <a class="nav-link active btn btn-primary" href="{{url_for('index')}}">Home</a>
+                    <a class="btn btn-outline-success" href="{{url_for('index')}}">Home</a>
                 </li>
                 <li class="nav-item">
                     {% if current_user.is_authenticated == False%}
-                        <a class="nav-link active btn btn-primary" href="{{ url_for('register') }}">Register</a>
+                        <a class="btn btn-outline-success" href="{{ url_for('register') }}">Register</a>
                     {% endif %}
                 </li>
 
                 {% if current_user.get_id() != 'admin' and current_user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link active btn btn-primary" href="{{ url_for('profile') }}">Profile</a>   
+                        <a class="btn btn-outline-success" href="{{ url_for('profile') }}">Profile</a>   
                     </li>
                 {% endif %}
 
                 <li class="nav-item">
                     {% if current_user.get_id()== 'admin' %}
-                        <a class="nav-link active btn btn-primary" href=" {{ url_for('showall') }}">Show Data</a>
+                        <a class="btn btn-outline-success" href=" {{ url_for('showall') }}">Show Data</a>
                     {% endif %}
                 </li>
                 <li class="nav-item">
                     {% if current_user.is_authenticated %}
-                        <a class="nav-link active btn btn-primary" href=" {{ url_for('logout') }}">Logout</a>
+                        <a class="btn btn-outline-success" href=" {{ url_for('logout') }}">Logout</a>
                     {% else %}
-                        <a class="nav-link active btn btn-primary" href="{{ url_for('login') }}">Login</a>
+                        <a class="btn btn-outline-success" href="{{ url_for('login') }}">Login</a>
                     {% endif %}
                 </li>
             </ul>
@@ -59,7 +58,7 @@
             {% if messages %}
                 <ul>
                     {% for message in messages %}
-                        <li>{{ message }}</li>
+                        <li class="alert alert-success" role="alert"> {{ message }} </li>
                     {% endfor %}
                 </ul>
             {% endif %}

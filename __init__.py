@@ -4,7 +4,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, validators, PasswordField, SubmitField, ValidationError
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager, current_user, login_user, login_required, logout_user
-from flask_table import Table, Col
+from flask_table import Table, Col, LinkCol
 
 
 
@@ -29,6 +29,7 @@ class Students(db.Model):
     roll = db.Column(db.String(5))
     address = db.Column(db.String(50))
     merit_score = db.Column(db.String(5))
+    seat_info = db.Column(db.String(100))
 
     def __lt__(self, other):
          return self.reg < other.reg
@@ -41,6 +42,8 @@ class Students_Table( Table ):
     roll = Col('Roll')
     address = Col('Address')
     merit_score = Col('Merit Score')
+    seat_info = Col('Seat Info')
+    allot = LinkCol('Allot', 'allot', url_kwargs=dict(id='reg'))
 
 
 
@@ -185,7 +188,18 @@ def showall():
         table_data.border = True
         return render_template('showall.html',table_data = table_data)
     else:
+        abort(404)
         return "404"
+
+@login_required 
+@app.route('/item/<id>', methods=['GET', 'POST'])
+def allot(id):
+    if current_user.get_id()=='admin':
+        flash('Seat in the hall allotted')
+        return redirect('/showall')
+    else:
+        abort(404)
+        return '404'
 
 
 @app.route('/profile')
