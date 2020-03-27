@@ -191,12 +191,33 @@ def showall():
         abort(404)
         return "404"
 
+def allotform(data):
+    class AllotForm(FlaskForm):
+        reg = StringField('Registration No', render_kw={'readonly': True, 'placeholder': "%s" % data.reg})
+        name = StringField('Name', render_kw={'readonly': True, 'placeholder': "%s" % data.name})
+        dept = StringField('Dept', render_kw={'readonly': True, 'placeholder': "%s" % data.dept})
+        hall = StringField('Hall', render_kw={'readonly': True, 'placeholder': "%s" % data.hall})
+        roll = StringField('Roll', render_kw={'readonly': True, 'placeholder': "%s" % data.roll})
+        address = StringField('Address', render_kw={'readonly': True, 'placeholder': "%s" % data.address})
+        merit_score = StringField('Merit_score', render_kw={'readonly': True, 'placeholder': "%s" % data.merit_score})
+        seat_info = StringField('Update Seat Information')
+        submit = SubmitField('Submit')
+    return AllotForm()
+
+
 @login_required 
 @app.route('/item/<id>', methods=['GET', 'POST'])
 def allot(id):
     if current_user.get_id()=='admin':
-        flash('Seat in the hall allotted')
-        return redirect('/showall')
+        if request.method=='GET':
+            stu = Students.query.filter_by(reg=id).first()
+            form = allotform(data=stu)
+            return render_template('allot.html', form=form)
+        elif request.method=='POST':
+            stu = Students.query.filter_by(reg=id).first()
+            stu.seat_info = request.form['seat_info']
+            db.session.commit()
+            return redirect('/showall')
     else:
         abort(404)
         return '404'
