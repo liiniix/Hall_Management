@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, request, flash, url_for, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, validators, PasswordField, SubmitField, ValidationError
+from wtforms import StringField, IntegerField, validators, PasswordField, SubmitField, ValidationError, Label
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager, current_user, login_user, login_required, logout_user
 from flask_table import Table, Col, LinkCol
@@ -87,6 +87,7 @@ class LoginForm(FlaskForm):
     def validate_reg(self, reg):
         user = User.query.filter_by(reg=reg.data).first()
         if user is None:
+            flash("You are not registered")
             raise ValidationError('Please Register')
 
 class RegisterForm(FlaskForm):
@@ -218,17 +219,22 @@ def allot(id):
             stu.seat_info = request.form['seat_info']
             db.session.commit()
             return redirect('/showall')
+    elif current_user.get_id() == id:
+        if request.method=='GET':
+            stu = Students.query.filter_by(reg=id).first()
+            form = allotform(data=stu)
+            form.seat_info.render_kw = {'readonly': True}
+            form.submit.render_kw = {'type':"hidden"}
+            form.seat_info.label.text = "Seat Information"
+            return render_template('allot.html', form=form)
     else:
         abort(404)
-        return '404'
-
 
 @app.route('/profile')
 @login_required
 def profile():
     if current_user.get_id() != 'admin':
-        return render_template('profile.html')
-
+        return redirect("/item/%s" % current_user.get_id())
 
 if __name__ == '__main__':
     app.run()
