@@ -1,58 +1,57 @@
 {% import "bootstrap/wtf.html" as wtf %}
 {% extends "bootstrap/base.html" %}
-{% block head %}
-    {{ super() }}
-    {% if title %}
-        <title> {{ title }} </title>
-    {% else %}
-        <title> Welcome Hall Management!</title>
-    {% endif %}
+{% block title %}
+        Welcome Hall Management!
 {% endblock %}
 
-
-
-
-{% block body %}
-    <div class="container">
-        {% block navbar %}
-        <div class="navbar navbar-expand-lg navbar-light bg-light">
-            <h4>Hall Management: 
+{% block navbar %}
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <span class="navbar-brand">Hall Management
                 {% if current_user.get_id() == 'admin' %}
                     (admin)
                 {% endif %}
-            </h4> 
-            <ul class="nav nav-pills">
+            </span>
+          
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="btn btn-outline-success" href="{{url_for('index')}}">Home</a>
-                </li>
-                <li class="nav-item">
-                    {% if current_user.is_authenticated == False%}
-                        <a class="btn btn-outline-success" href="{{ url_for('register') }}">Register</a>
-                    {% endif %}
+                    <a class="nav-link active" href="{{url_for('index')}}">Home</a>
                 </li>
 
                 {% if current_user.get_id() != 'admin' and current_user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="btn btn-outline-success" href="{{ url_for('profile') }}">Profile</a>   
+                        <a class="nav-link active" href="{{ url_for('profile') }}">Profile</a>   
                     </li>
                 {% endif %}
 
                 <li class="nav-item">
                     {% if current_user.get_id()== 'admin' %}
-                        <a class="btn btn-outline-success" href=" {{ url_for('showall') }}">Show Data</a>
+                        <a class="nav-link active" href=" {{ url_for('showall') }}">Show Data</a>
                     {% endif %}
                 </li>
-                <li class="nav-item">
-                    {% if current_user.is_authenticated %}
-                        <a class="btn btn-outline-success" href=" {{ url_for('logout') }}">Logout</a>
-                    {% else %}
-                        <a class="btn btn-outline-success" href="{{ url_for('login') }}">Login</a>
-                    {% endif %}
-                </li>
-            </ul>
-        </div>
-        {% endblock %}
+              </ul>
 
+                <ul class="navbar-nav">
+                    {% if current_user.is_authenticated == False%}
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('register') }}">Register</a>
+                    </li>
+                    {% endif %}
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link active" href=" {{ url_for('logout') }}">Logout</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('login') }}">Login</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+{% endblock %}
+
+{% block content %}
         <hr>
         {% with messages = get_flashed_messages() %}
             {% if messages %}
@@ -63,11 +62,4 @@
                 </ul>
             {% endif %}
         {% endwith %}
-        {% block content %}{% endblock %}
-
-    </div>
-
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 {% endblock %}

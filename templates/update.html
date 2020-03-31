@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Edit "{{ post['title'] }}"{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+{{super()}}
+  {{wtf.quick_form(form, form_type="horizontal")}}<br>
+  <form method="post" id="abul">
+    <input class="btn btn-danger" name="save" type="submit" value="Delete">
+  </form>
+{% endblock %}
+

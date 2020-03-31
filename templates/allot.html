@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {{ wtf.quick_form(form) }}
+    {{super()}}
+    {{ wtf.quick_form(form, form_type="horizontal")}}
 {% endblock %}

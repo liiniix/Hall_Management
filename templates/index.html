@@ -1,5 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-
+    {{super()}}
+    {% if current_user.is_authenticated and current_user.get_id()=='admin' %}
+        <a class="action btn btn-outline-primary" href="{{ url_for('create') }}">New Post</a>
+    {% endif %}
+    {% if posts %}
+        {% for post in posts %}
+        <article class="post jumbotron">
+        <header>
+            <div>
+            <h1>{{ post.title }}</h1>
+            <div class="about text-secondary font-italic"> on {{ post.time.strftime('%Y-%m-%d') }}</div>
+            <hr class="my-4">    
+            </div>
+            {% if current_user.is_authenticated and current_user.get_id()=='admin' %}
+                <a class="action btn btn-primary pull-right" href="/update/{{ post.id }}">Edit</a>
+            {% endif %}
+        </header>
+        <p class="body">{{ post.body }}</p>
+        </article>
+        {% if not loop.last %}
+        <hr>
+        {% endif %}
+        {% endfor %}
+    {% endif %}
 {% endblock %}
