@@ -261,7 +261,9 @@ def allot(id):
         elif request.method=='POST':
             stu = Students.query.filter_by(reg=id).first()
             stu.seat_info = request.form['seat_info']
+            db.session.add(Posts(title="Allotment", body=stu.reg + " alloted at seat " + request.form['seat_info']))
             db.session.commit()
+            flash("Seat Alloted")
             return redirect('/showall')
     elif current_user.get_id() == id:
         if request.method=='GET':
