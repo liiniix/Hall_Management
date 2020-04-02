@@ -43,7 +43,7 @@ class Students_Table( Table ):
     address = Col('Address')
     merit_score = Col('Merit Score')
     seat_info = Col('Seat Info')
-    allot = LinkCol('Allot', 'allot', url_kwargs=dict(id='reg'), anchor_attrs={'class': 'btn btn-outline-success'})
+    allot = LinkCol('Allot', 'allot', url_kwargs=dict(id='reg'), anchor_attrs={'class': 'btn btn-outline-primary'})
 
 
 
@@ -98,10 +98,12 @@ class RegisterForm(FlaskForm):
     def validate_reg(self, reg):
         stu = Students.query.filter_by(reg=reg.data).first()
         if stu is None:
+            flash('Not in student database')
             raise ValidationError('Not in Student Database')
 
         user = User.query.filter_by(reg=reg.data).first()
         if user is not None:
+            flash('Already registered')
             raise ValidationError('Already registered')
 
 def insert_user():
@@ -229,7 +231,7 @@ def showall():
             if request.form['submit']=='Sort':
                 flash('Table sorted')
                 data.sort()
-        table_data = Students_Table(data, classes=['table', 'table-striped', 'table-hover', 'success'], thead_classes=["bg-success"])
+        table_data = Students_Table(data, classes=['h6', 'table', 'table-striped', 'table-hover', 'primary'], thead_classes=["bg-primary"])
         table_data.border = True
         return render_template('showall.html',table_data = table_data)
     else:

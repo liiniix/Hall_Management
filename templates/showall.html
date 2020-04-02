@@ -3,10 +3,11 @@
 {% block content %}
 {{super()}}
         <form action="" method="post" class="form" role="form">
-                <input class="btn btn-outline-success" id="submit" name="submit" type="submit" value="Sort">
-                <input class="btn btn-outline-success" id="submit" name="submit" type="submit" value="Search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
+                <input class="btn btn-outline-primary" id="submit" name="submit" type="submit" value="Sort">
+                <input class="btn btn-outline-primary" id="submit" name="submit" type="submit" value="Search">
+                <button class="btn btn-outline-primary" type="submit">Search</button>
         </form><br><br>
-
+<div class="table-responsive">
         {{ table_data }}
+</div>
 {% endblock %}
