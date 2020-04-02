@@ -5,13 +5,15 @@ from wtforms import StringField, IntegerField, validators, TextAreaField, Passwo
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager, current_user, login_user, login_required, logout_user
 from flask_table import Table, Col, LinkCol,ButtonCol
-
+from werkzeug.middleware.dispatcher import DispatcherMiddleware
+from werkzeug.serving import run_simple
 
 
 app = Flask(__name__)
 Bootstrap(app)
 app.secret_key = 'abul'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+app.config["APPLICATION_ROOT"] = "/app"
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -147,7 +149,7 @@ def create():
     if request.method == 'POST' and form.validate_on_submit():
         db.session.add(Posts(title = request.form['title'], body = request.form['body']))
         db.session.commit()
-        return redirect('/index')
+        return redirect(url_for('index'))
     return render_template('create.html', form=form)
 
 
@@ -170,7 +172,7 @@ def update(id):
             post.title = request.form['title']
             post.body = request.form['body']
             db.session.commit()
-        return redirect('/index')
+        return redirect(url_for('index'))
     return render_template('update.html', post = post, form=form)
 
 
@@ -179,12 +181,12 @@ def update(id):
 def login():
     if current_user.is_authenticated:
         flash('you are logged in already')
-        return redirect('/verified')
+        return redirect(url_for('verified'))
     form = LoginForm()
     if request.method=='POST' and form.validate_on_submit():
         if reg_pass_matched():
             flash('Login success')
-            return redirect('/')
+            return redirect(url_for('index'))
         else:
             flash('Password Error')
     return render_template('login.html', form=form)
@@ -196,12 +198,12 @@ def login():
 def register():
     if current_user.is_authenticated:
         flash('You are logged in already')
-        return redirect('/verified')
+        return redirect(url_for('verified'))
     form = RegisterForm()
     if request.method=='POST' and form.validate_on_submit():
         insert_user()
         flash('register success. Now log in')
-        return redirect('/login')
+        return redirect(url_for('login'))
     
     return render_template('register.html', form=form)
     
@@ -212,7 +214,7 @@ def register():
 def logout():
     logout_user()
     flash('logout success')
-    return redirect('/index')
+    return redirect(url_for('index'))
 
 @app.route('/verified')
 @login_required
@@ -266,7 +268,7 @@ def allot(id):
             db.session.add(Posts(title="Allotment", body=stu.reg + " alloted at seat " + request.form['seat_info']))
             db.session.commit()
             flash("Seat Alloted")
-            return redirect('/showall')
+            return redirect(url_for('showall'))
     elif current_user.get_id() == id:
         if request.method=='GET':
             stu = Students.query.filter_by(reg=id).first()
@@ -283,6 +285,12 @@ def allot(id):
 def profile():
     if current_user.get_id() != 'admin':
         return redirect("/item/%s" % current_user.get_id())
+
+def simple(env, resp):
+    resp(b'200 OK', [(b'Content-Type', b'text/plain')])
+    return [b'Hello WSGI World']
+
+app.wsgi_app = DispatcherMiddleware(simple, {'/app': app.wsgi_app})
 
 if __name__ == '__main__':
     app.run()

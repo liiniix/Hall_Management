@@ -16,7 +16,7 @@
             <hr class="my-4">    
             </div>
             {% if current_user.is_authenticated and current_user.get_id()=='admin' %}
-                <a class="action btn btn-primary mr-auto" href="/update/{{ post.id }}">Edit</a>
+                <a class="action btn btn-primary mr-auto" href="{{ url_for('update', id=post.id) }}">Edit</a>
             {% endif %}
         </header>
         <p class="body">{{ post.body }}</p>
