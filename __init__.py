@@ -5,15 +5,15 @@ from wtforms import StringField, IntegerField, validators, TextAreaField, Passwo
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager, current_user, login_user, login_required, logout_user
 from flask_table import Table, Col, LinkCol,ButtonCol
-from werkzeug.middleware.dispatcher import DispatcherMiddleware
-from werkzeug.serving import run_simple
+#from werkzeug.middleware.dispatcher import DispatcherMiddleware
+#from werkzeug.serving import run_simple
 
 
 app = Flask(__name__)
 Bootstrap(app)
 app.secret_key = 'abul'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-app.config["APPLICATION_ROOT"] = "/app"
+#app.config["APPLICATION_ROOT"] = "/app"
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -286,11 +286,11 @@ def profile():
     if current_user.get_id() != 'admin':
         return redirect("/item/%s" % current_user.get_id())
 
-def simple(env, resp):
-    resp(b'200 OK', [(b'Content-Type', b'text/plain')])
-    return [b'Hello WSGI World']
+#def simple(env, resp):
+#    resp(b'200 OK', [(b'Content-Type', b'text/plain')])
+#    return [b'Hello WSGI World']
 
-app.wsgi_app = DispatcherMiddleware(simple, {'/app': app.wsgi_app})
+#app.wsgi_app = DispatcherMiddleware(simple, {'/app': app.wsgi_app})
 
 if __name__ == '__main__':
     app.run()
