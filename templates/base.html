@@ -31,13 +31,19 @@
                     <li class="nav-item">
                         <a class="nav-link active" href="{{ url_for('profile') }}">Profile</a>   
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('pay', id=current_user.get_id()) }}">Pay Due</a>   
+                    </li>
                 {% endif %}
 
-                <li class="nav-item">
                     {% if current_user.get_id()== 'admin' %}
+                    <li class="nav-item">
                         <a class="nav-link active" href=" {{ url_for('showall') }}">Show Data</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href=" {{ url_for('showtran') }}">Show Tran</a>
+                    </li>
                     {% endif %}
-                </li>
               </ul>
 
                 <ul class="navbar-nav">

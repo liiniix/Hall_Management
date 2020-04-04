@@ -1,22 +1,24 @@
 from flask import Flask, render_template, redirect, request, flash, url_for, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, validators, TextAreaField, PasswordField, SubmitField, ValidationError, Label
+from wtforms import StringField, IntegerField, validators, DecimalField, TextAreaField, PasswordField, SubmitField, ValidationError, Label
 from flask_bootstrap import Bootstrap
 from flask_login import LoginManager, current_user, login_user, login_required, logout_user
 from flask_table import Table, Col, LinkCol,ButtonCol
-from werkzeug.middleware.dispatcher import DispatcherMiddleware
-from werkzeug.serving import run_simple
+#from werkzeug.middleware.dispatcher import DispatcherMiddleware
+#from werkzeug.serving import run_simple
 
 
 app = Flask(__name__)
 Bootstrap(app)
 app.secret_key = 'abul'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-app.config["APPLICATION_ROOT"] = "/app"
+#app.config["APPLICATION_ROOT"] = "/app"
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+
 
 
 
@@ -32,21 +34,23 @@ class Students(db.Model):
     address = db.Column(db.String(50))
     merit_score = db.Column(db.String(5))
     seat_info = db.Column(db.String(100))
+    due = db.Column(db.Integer())
 
     def __lt__(self, other):
          return self.reg < other.reg
 
 class Students_Table( Table ):
-    reg = Col('Registration')
-    name = Col('Name')
-    dept = Col('Department')
-    hall = Col('Hall')
-    roll = Col('Roll')
-    address = Col('Address')
-    merit_score = Col('Merit Score')
-    seat_info = Col('Seat Info')
-    allot = LinkCol('Allot', 'allot', url_kwargs=dict(id='reg'), anchor_attrs={'class': 'btn btn-outline-primary'})
-
+    reg = Col('Registration', column_html_attrs={'class': 'border border-primary'})
+    name = Col('Name', column_html_attrs={'class': 'border border-primary'})
+    dept = Col('Department', show=False)
+    hall = Col('Hall', show=False)
+    roll = Col('Roll', show=False)
+    address = Col('Address', show=False)
+    merit_score = Col('Merit Score', show=False)
+    seat_info = Col('Seat Info', column_html_attrs={'class': 'border border-primary'})
+    due = Col('Due', column_html_attrs={'class': 'border border-primary'})
+    allot = LinkCol('Allot', 'allot', url_kwargs=dict(id='reg'), anchor_attrs={'class': 'btn btn-outline-primary'}, column_html_attrs={'class': 'border border-primary'})
+    show_details = LinkCol('Details', 'allot', url_kwargs=dict(id='reg'), anchor_attrs={'class': 'btn btn-primary'}, column_html_attrs={'class': 'border border-primary'})
 
 
 
@@ -69,6 +73,10 @@ class User(db.Model):
 
     def is_anonymous(self):
         return False
+
+class Bkash(db.Model):
+    id = db.Column(db.String(20), primary_key=True)
+    amount = db.Column(db.Integer())
 
 
 @login_manager.user_loader
@@ -234,8 +242,24 @@ def showall():
                 flash('Table sorted')
                 data.sort()
         table_data = Students_Table(data, classes=['h6', 'table', 'table-striped', 'table-hover', 'primary'], thead_classes=["bg-primary"])
-        table_data.border = True
         return render_template('showall.html',table_data = table_data)
+    else:
+        abort(404)
+        return "404"
+
+
+class Bkash_Table( Table ):
+    id = Col('ID', column_html_attrs={'class': 'border border-primary'})
+    amount = Col('Amount', column_html_attrs={'class': 'border border-primary'})
+    
+
+@app.route('/showtran', methods=['GET','POST'])
+@login_required
+def showtran():
+    if current_user.get_id() == 'admin':
+        data = Bkash.query.all()
+        table_data = Bkash_Table(data, classes=['h6', 'table', 'table-striped', 'table-hover', 'primary', 'border',  'border-primary'], thead_classes=["bg-primary"])
+        return render_template('showtran.html',table_data = table_data)
     else:
         abort(404)
         return "404"
@@ -249,6 +273,7 @@ def allotform(data):
         roll = StringField('Roll', render_kw={'readonly': True, 'placeholder': "%s" % data.roll})
         address = StringField('Address', render_kw={'readonly': True, 'placeholder': "%s" % data.address})
         merit_score = StringField('Merit_score', render_kw={'readonly': True, 'placeholder': "%s" % data.merit_score})
+        due = StringField('Due', render_kw={'readonly': True, 'placeholder': "%s" % data.due})
         seat_info = StringField('Update Seat Information')
         submit = SubmitField('Submit')
     return AllotForm()
@@ -286,11 +311,59 @@ def profile():
     if current_user.get_id() != 'admin':
         return redirect("/item/%s" % current_user.get_id())
 
+
+class Pay_Form(FlaskForm):
+    id = StringField('Bkash ID', validators=[validators.DataRequired()])
+    amount = DecimalField('Amount', validators=[validators.DataRequired(), validators.NumberRange(min=0, max=10000, message="Decimal from 0 to 10000")])
+    Pay = SubmitField('Pay')
+
+    def validate_id(self, id):
+        print(id.data)
+        bk = Bkash.query.filter_by(id=id.data).first()
+        if bk is None:
+            flash('Not in Bkash payment database')
+            raise ValidationError('Not in Bkash payment Database')
+
+@login_required 
+@app.route('/pay/<id>', methods=['GET', 'POST'])
+def pay(id):
+    if current_user.get_id() ==id and current_user.get_id != 'admin':
+        form = Pay_Form()
+        if request.method=='GET':
+            return render_template('pay.html', form=form)
+        elif request.method=='POST' and form.validate_on_submit():
+            bk = Bkash.query.filter_by(id=request.form['id']).first()
+            if bk.amount < float(request.form['amount']):
+                flash("Less money available")
+                return render_template('pay.html', form=form)
+
+            stu = Students.query.filter_by(reg=id).first()
+            payed = stu.due - min(stu.due, float(request.form['amount']))
+            stu.due = payed
+
+            bk.amount = bk.amount - payed
+            if bk.amount <=0:
+                db.session.delete(bk)
+                db.session.commit()
+            print(payed)
+            db.session.add(Posts(title="Payment", body=stu.reg + " payed " + str(stu.due) ))
+            db.session.commit()
+            flash("Payed")
+            return redirect(url_for('index'))
+        else:
+            return render_template('pay.html', form=form)
+    else:
+        abort(404)
+
+
+
 def simple(env, resp):
     resp(b'200 OK', [(b'Content-Type', b'text/plain')])
     return [b'Hello WSGI World']
 
-app.wsgi_app = DispatcherMiddleware(simple, {'/app': app.wsgi_app})
+#app.wsgi_app = DispatcherMiddleware(simple, {'/app': app.wsgi_app})
+
+
 
 if __name__ == '__main__':
     app.run()
