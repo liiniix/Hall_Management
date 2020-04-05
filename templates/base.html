@@ -9,9 +9,9 @@
 {% endblock %}
 
 {% block body %}
-<div class="container border border-primary">
+<div class="container border border-info">
 {% block navbar %}
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-info">
             <span class="navbar-brand">Hall Management
                 {% if current_user.get_id() == 'admin' %}
                     (admin)
@@ -68,15 +68,18 @@
 
 
 
-        <hr>
         {% with messages = get_flashed_messages() %}
-        <ul class="list-group">
             {% if messages %}
+            <hr>
                     {% for message in messages %}
-                        <li class="list-group-item active alert alert-primary" role="alert"> {{ message }} </li>
+                        <div class="alert alert-danger alert-dismissible fade show border-warning" role="alert">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                        </div>
                     {% endfor %}
             {% endif %}
-        </ul>
         {% endwith %}
         <br>
 

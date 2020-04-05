@@ -3,12 +3,12 @@
 {% block content %}
     {{super()}}
     {% if current_user.is_authenticated and current_user.get_id()=='admin' %}
-        <a class="action btn btn-outline-primary" href="{{ url_for('create') }}">New Post</a>
+        <a class="action btn btn-outline-info" href="{{ url_for('create') }}">New Post</a>
     {% endif %}
     {% if posts %}
     <ul class="list-group">
         {% for post in posts %}
-        <article class="post list-group-item border border-primary">
+        <article class="post list-group-item border border-info">
         <header>
             <div>
             <h1>{{ post.title }}</h1>
@@ -16,7 +16,7 @@
             <hr class="my-4">    
             </div>
             {% if current_user.is_authenticated and current_user.get_id()=='admin' %}
-                <a class="action btn btn-primary mr-auto" href="{{ url_for('update', id=post.id) }}">Edit</a>
+                <a class="action btn btn-info mr-auto" href="{{ url_for('update', id=post.id) }}">Edit</a>
             {% endif %}
         </header>
         <p class="body">{{ post.body }}</p>

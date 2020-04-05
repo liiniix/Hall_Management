@@ -40,17 +40,17 @@ class Students(db.Model):
          return self.reg < other.reg
 
 class Students_Table( Table ):
-    reg = Col('Registration', column_html_attrs={'class': 'border border-primary'})
-    name = Col('Name', column_html_attrs={'class': 'border border-primary'})
+    reg = Col('Registration', column_html_attrs={'class': 'border border-info'})
+    name = Col('Name', column_html_attrs={'class': 'border border-info'})
     dept = Col('Department', show=False)
     hall = Col('Hall', show=False)
     roll = Col('Roll', show=False)
     address = Col('Address', show=False)
     merit_score = Col('Merit Score', show=False)
-    seat_info = Col('Seat Info', column_html_attrs={'class': 'border border-primary'})
-    due = Col('Due', column_html_attrs={'class': 'border border-primary'})
-    allot = LinkCol('Allot', 'allot', url_kwargs=dict(id='reg'), anchor_attrs={'class': 'btn btn-outline-primary'}, column_html_attrs={'class': 'border border-primary'})
-    show_details = LinkCol('Details', 'allot', url_kwargs=dict(id='reg'), anchor_attrs={'class': 'btn btn-primary'}, column_html_attrs={'class': 'border border-primary'})
+    seat_info = Col('Seat Info', column_html_attrs={'class': 'border border-info'})
+    due = Col('Due', column_html_attrs={'class': 'border border-info'})
+    allot = LinkCol('Allot', 'allot', url_kwargs=dict(id='reg'), anchor_attrs={'class': 'btn btn-outline-info'}, column_html_attrs={'class': 'border border-info'})
+    show_details = LinkCol('Details', 'allot', url_kwargs=dict(id='reg'), anchor_attrs={'class': 'btn btn-info'}, column_html_attrs={'class': 'border border-info'})
 
 
 
@@ -241,7 +241,7 @@ def showall():
             if request.form['submit']=='Sort':
                 flash('Table sorted')
                 data.sort()
-        table_data = Students_Table(data, classes=['h6', 'table', 'table-striped', 'table-hover', 'primary'], thead_classes=["bg-primary"])
+        table_data = Students_Table(data, classes=['h6', 'table', 'table-striped', 'table-hover', 'info'], thead_classes=["bg-info"])
         return render_template('showall.html',table_data = table_data)
     else:
         abort(404)
@@ -249,8 +249,8 @@ def showall():
 
 
 class Bkash_Table( Table ):
-    id = Col('ID', column_html_attrs={'class': 'border border-primary'})
-    amount = Col('Amount', column_html_attrs={'class': 'border border-primary'})
+    id = Col('ID', column_html_attrs={'class': 'border border-info'})
+    amount = Col('Amount', column_html_attrs={'class': 'border border-info'})
     
 
 @app.route('/showtran', methods=['GET','POST'])
@@ -258,7 +258,7 @@ class Bkash_Table( Table ):
 def showtran():
     if current_user.get_id() == 'admin':
         data = Bkash.query.all()
-        table_data = Bkash_Table(data, classes=['h6', 'table', 'table-striped', 'table-hover', 'primary', 'border',  'border-primary'], thead_classes=["bg-primary"])
+        table_data = Bkash_Table(data, classes=['h6', 'table', 'table-striped', 'table-hover', 'info', 'border',  'border-info'], thead_classes=["bg-info"])
         return render_template('showtran.html',table_data = table_data)
     else:
         abort(404)
@@ -338,15 +338,15 @@ def pay(id):
                 return render_template('pay.html', form=form)
 
             stu = Students.query.filter_by(reg=id).first()
-            payed = stu.due - min(stu.due, float(request.form['amount']))
-            stu.due = payed
+            payable = min(stu.due, float(request.form['amount']))
+            stu.due = stu.due - payable
 
-            bk.amount = bk.amount - payed
+            bk.amount = bk.amount - payable
             if bk.amount <=0:
                 db.session.delete(bk)
                 db.session.commit()
             print(payed)
-            db.session.add(Posts(title="Payment", body=stu.reg + " payed " + str(stu.due) ))
+            db.session.add(Posts(title="Payment", body=stu.reg + " payed " + str(payable) ))
             db.session.commit()
             flash("Payed")
             return redirect(url_for('index'))
