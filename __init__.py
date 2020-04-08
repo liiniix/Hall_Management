@@ -309,8 +309,7 @@ def allot(id):
 @login_required
 def profile():
     if current_user.get_id() != 'admin':
-        return redirect("/item/%s" % current_user.get_id())
-
+        return redirect(url_for('allot', id="%s" % current_user.get_id()))
 
 class Pay_Form(FlaskForm):
     id = StringField('Bkash ID', validators=[validators.DataRequired()])
