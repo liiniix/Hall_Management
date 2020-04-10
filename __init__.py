@@ -157,6 +157,7 @@ def create():
     if request.method == 'POST' and form.validate_on_submit():
         db.session.add(Posts(title = request.form['title'], body = request.form['body']))
         db.session.commit()
+        flash("Post Created")
         return redirect(url_for('index'))
     return render_template('create.html', form=form)
 
@@ -174,9 +175,11 @@ def update(id):
     form = UpdateForm(post)
     if request.method=='POST':
         if request.form['save']=='Delete':
+            flash("Post Deleted")
             db.session.delete(post)
             db.session.commit()
         else:
+            flash("Post Updated")
             post.title = request.form['title']
             post.body = request.form['body']
             db.session.commit()
@@ -344,7 +347,6 @@ def pay(id):
             if bk.amount <=0:
                 db.session.delete(bk)
                 db.session.commit()
-            print(payed)
             db.session.add(Posts(title="Payment", body=stu.reg + " payed " + str(payable) ))
             db.session.commit()
             flash("Payed")
